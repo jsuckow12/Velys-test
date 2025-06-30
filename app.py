@@ -98,14 +98,34 @@ def anatomy_diagram(ax, ahka, fma, tma):
     ax.set_title("Anatomy Diagram")
 
 def cpak_graph(ax, ahka, jlo, color, label):
-    # Reverse y-axis to match PyQt5
+    # Set up the graph with 1.0 increments
+    ax.set_xlim(-8, 8)
+    ax.set_ylim(170, 190)  # Reverse y-axis to match PyQt5
+    
+    # Set major ticks to 1.0 increments
+    ax.set_xticks(np.arange(-8, 9, 1))
+    ax.set_yticks(np.arange(170, 191, 1))
+    
+    # Draw grid lines
+    ax.grid(True, alpha=0.3)
+    
+    # Draw center lines (gray dashed)
     ax.axhline(180, color='gray', linestyle='--', linewidth=1)
     ax.axvline(0, color='gray', linestyle='--', linewidth=1)
+    
+    # Draw horizontal lines at y = 177 and y = 183 (black, bold)
+    ax.axhline(177, color='black', linewidth=2)
+    ax.axhline(183, color='black', linewidth=2)
+    
+    # Draw vertical lines at x = -2 and x = 2 (black, bold)
+    ax.axvline(-2, color='black', linewidth=2)
+    ax.axvline(2, color='black', linewidth=2)
+    
+    # Plot the point
     ax.scatter([ahka], [jlo], color=color, s=100, label=label)
+    
     ax.set_xlabel("aHKA")
     ax.set_ylabel("JLO")
-    ax.set_xlim(-8, 8)
-    ax.set_ylim(190, 170)  # Reverse y-axis
     ax.set_title("CPAK Plot")
     ax.legend()
 
@@ -144,22 +164,7 @@ with col2:
         "aHKA": [f"{ahka_post:.2f}"]
     })
 
-# --- Display Anatomy Diagrams ---
-
-st.subheader("Anatomy Diagrams")
-ad_col1, ad_col2 = st.columns(2)
-with ad_col1:
-    st.markdown("**Pre-op Anatomy**")
-    fig1, ax1 = plt.subplots(figsize=(3, 4))
-    anatomy_diagram(ax1, rHKA, FMA, TMA)
-    st.pyplot(fig1)
-with ad_col2:
-    st.markdown("**Post-op Anatomy**")
-    fig2, ax2 = plt.subplots(figsize=(3, 4))
-    anatomy_diagram(ax2, post_op_vals["ahka"], post_op_vals["fma"], post_op_vals["tma"])
-    st.pyplot(fig2)
-
-# --- Display CPAK Graphs ---
+# --- Display CPAK Graphs (MOVED ABOVE ANATOMY DIAGRAMS) ---
 
 st.subheader("CPAK Graphs")
 cg_col1, cg_col2 = st.columns(2)
@@ -175,3 +180,18 @@ with cg_col2:
     fig4, ax4 = plt.subplots(figsize=(4, 4))
     cpak_graph(ax4, ahka_post, jlo_post, 'blue', 'Post-op')
     st.pyplot(fig4)
+
+# --- Display Anatomy Diagrams (MOVED BELOW CPAK GRAPHS) ---
+
+st.subheader("Anatomy Diagrams")
+ad_col1, ad_col2 = st.columns(2)
+with ad_col1:
+    st.markdown("**Pre-op Anatomy**")
+    fig1, ax1 = plt.subplots(figsize=(3, 4))
+    anatomy_diagram(ax1, rHKA, FMA, TMA)
+    st.pyplot(fig1)
+with ad_col2:
+    st.markdown("**Post-op Anatomy**")
+    fig2, ax2 = plt.subplots(figsize=(3, 4))
+    anatomy_diagram(ax2, post_op_vals["ahka"], post_op_vals["fma"], post_op_vals["tma"])
+    st.pyplot(fig2)
