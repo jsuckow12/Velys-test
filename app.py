@@ -48,32 +48,44 @@ def calculate_post_op(pre_op, technique):
         }
 
 def anatomy_diagram(ax, ahka):
-    # Draw a simple version of the lines and red dots
+    # Set up points: hip (top), knee (middle), ankle (bottom)
     center_x = 0
     hip_y = 0
     knee_y = 2
-    tibia_length = 0.5
-    ankle_y = knee_y + tibia_length + 1.6
+    ankle_y = 4
 
-    # Calculate offset for aHKA
+    # Calculate offset for aHKA (in degrees)
     angle_rad = np.radians(180 - ahka)
-    total_x_offset = (tibia_length + 1.6) * np.sin(angle_rad)
-    hip_x = center_x + total_x_offset
-    knee_x = center_x
-    tibia_x = knee_x + tibia_length * np.sin(angle_rad)
-    tibia_y = knee_y + tibia_length * np.cos(angle_rad)
-    ankle_x = hip_x
+    offset = 1.0 * np.sin(angle_rad)  # horizontal offset for mechanical axis
 
-    # Draw lines
-    ax.plot([hip_x, knee_x], [hip_y, knee_y], 'k-', lw=2)
-    ax.plot([tibia_x, ankle_x], [tibia_y, ankle_y], 'k-', lw=2)
+    # Points
+    hip = (center_x + offset, hip_y)
+    knee = (center_x, knee_y)
+    ankle = (center_x + offset, ankle_y)
+
+    # Draw mechanical axis (hip to knee to ankle)
+    ax.plot([hip[0], knee[0], ankle[0]], [hip[1], knee[1], ankle[1]], 'k-', lw=2)
     # Draw points
-    ax.plot([hip_x, knee_x, tibia_x, ankle_x], [hip_y, knee_y, tibia_y, ankle_y], 'ro', ms=8)
-    # Draw labels
-    ax.text(hip_x, hip_y-0.1, "Hip", ha='center', fontsize=10)
-    ax.text(ankle_x, ankle_y+0.1, "Ankle", ha='center', fontsize=10)
+    ax.plot(*hip, 'ro', ms=8)
+    ax.plot(*knee, 'ro', ms=8)
+    ax.plot(*ankle, 'ro', ms=8)
+
+    # Draw femoral and tibial joint lines at the knee (same length, red)
+    joint_line_len = 1.2
+    # Femoral joint line (above knee)
+    ax.plot([knee[0] - joint_line_len/2, knee[0] + joint_line_len/2],
+            [knee[1], knee[1]], color='red', lw=3)
+    # Tibial joint line (below knee)
+    ax.plot([knee[0] - joint_line_len/2, knee[0] + joint_line_len/2],
+            [knee[1]+0.2, knee[1]+0.2], color='red', lw=3)
+
+    # Labels
+    ax.text(*hip, "Hip", ha='center', va='bottom', fontsize=10)
+    ax.text(*knee, "Knee", ha='center', va='bottom', fontsize=10)
+    ax.text(*ankle, "Ankle", ha='center', va='top', fontsize=10)
+
     ax.set_xlim(-2, 2)
-    ax.set_ylim(-0.5, 4)
+    ax.set_ylim(-0.5, 4.5)
     ax.axis('off')
     ax.set_title("Anatomy Diagram")
 
