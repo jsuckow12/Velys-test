@@ -119,17 +119,30 @@ with col1:
     FMA = st.number_input("FMA", value=92, step=1, format="%d")
     TMA = st.number_input("TMA", value=84, step=1, format="%d")
     sHKA = st.number_input("sHKA", value=176, step=1, format="%d")
+    # Pre-op CPAK Table
+    ldfa_pre, mpta_pre, jlo_pre, ahka_pre = calculate_cpak(FMA, TMA)
+    st.markdown("**Pre-op CPAK Table**")
+    st.table({
+        "LDFA": [f"{ldfa_pre:.2f}"],
+        "MPTA": [f"{mpta_pre:.2f}"],
+        "JLO": [f"{jlo_pre:.2f}"],
+        "aHKA": [f"{ahka_pre:.2f}"]
+    })
 
 with col2:
     st.header("Post-op Input")
     technique = st.selectbox("Surgical Technique", ["Mechanical Alignment (MA)", "Kinematic Alignment (KA)", "Inverse Kinematic Alignment (iKA)"])
-
-# --- Calculations ---
-
-pre_op = {"ahka": rHKA, "fma": FMA, "tma": TMA, "shka": sHKA}
-ldfa_pre, mpta_pre, jlo_pre, ahka_pre = calculate_cpak(FMA, TMA)
-post_op_vals = calculate_post_op(pre_op, technique)
-ldfa_post, mpta_post, jlo_post, ahka_post = calculate_cpak(post_op_vals["fma"], post_op_vals["tma"])
+    # Post-op CPAK Table
+    pre_op = {"ahka": rHKA, "fma": FMA, "tma": TMA, "shka": sHKA}
+    post_op_vals = calculate_post_op(pre_op, technique)
+    ldfa_post, mpta_post, jlo_post, ahka_post = calculate_cpak(post_op_vals["fma"], post_op_vals["tma"])
+    st.markdown("**Post-op CPAK Table**")
+    st.table({
+        "LDFA": [f"{ldfa_post:.2f}"],
+        "MPTA": [f"{mpta_post:.2f}"],
+        "JLO": [f"{jlo_post:.2f}"],
+        "aHKA": [f"{ahka_post:.2f}"]
+    })
 
 # --- Display Anatomy Diagrams ---
 
@@ -146,9 +159,9 @@ with ad_col2:
     anatomy_diagram(ax2, post_op_vals["ahka"], post_op_vals["fma"], post_op_vals["tma"])
     st.pyplot(fig2)
 
-# --- Display CPAK Graphs and Tables ---
+# --- Display CPAK Graphs ---
 
-st.subheader("CPAK Graphs and Tables")
+st.subheader("CPAK Graphs")
 cg_col1, cg_col2 = st.columns(2)
 
 with cg_col1:
@@ -156,21 +169,9 @@ with cg_col1:
     fig3, ax3 = plt.subplots(figsize=(4, 4))
     cpak_graph(ax3, ahka_pre, jlo_pre, 'red', 'Pre-op')
     st.pyplot(fig3)
-    st.table({
-        "LDFA": [f"{ldfa_pre:.2f}"],
-        "MPTA": [f"{mpta_pre:.2f}"],
-        "JLO": [f"{jlo_pre:.2f}"],
-        "aHKA": [f"{ahka_pre:.2f}"]
-    })
 
 with cg_col2:
     st.markdown("**Post-op CPAK**")
     fig4, ax4 = plt.subplots(figsize=(4, 4))
     cpak_graph(ax4, ahka_post, jlo_post, 'blue', 'Post-op')
     st.pyplot(fig4)
-    st.table({
-        "LDFA": [f"{ldfa_post:.2f}"],
-        "MPTA": [f"{mpta_post:.2f}"],
-        "JLO": [f"{jlo_post:.2f}"],
-        "aHKA": [f"{ahka_post:.2f}"]
-    })
