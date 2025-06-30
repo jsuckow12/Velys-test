@@ -47,8 +47,7 @@ def calculate_post_op(pre_op, technique):
             "shka": 180
         }
 
-def draw_rotated_line(ax, center, angle_deg, length, color='red', lw=3):
-    # angle_deg: 0 = horizontal, positive = counterclockwise
+def draw_rotated_line(ax, center, angle_deg, length, color='red', lw=1.5):
     angle_rad = np.radians(angle_deg)
     x0 = center[0] - (length/2) * np.cos(angle_rad)
     y0 = center[1] - (length/2) * np.sin(angle_rad)
@@ -81,12 +80,14 @@ def anatomy_diagram(ax, ahka, fma, tma):
 
     # Draw femoral and tibial joint lines at the knee (same length, red, rotated)
     joint_line_len = 1.2
-    # Femoral joint line (above knee): FMA, 0° = horizontal, positive = CCW
+    # Femoral joint line (above knee): TMA, 0° = horizontal, positive = CCW
     femoral_center = (knee[0], knee[1])
-    draw_rotated_line(ax, femoral_center, fma - 90, joint_line_len, color='red', lw=3)
-    # Tibial joint line (below knee): TMA, 0° = horizontal, positive = CCW
+    draw_rotated_line(ax, femoral_center, tma - 90, joint_line_len, color='red', lw=1.5)
+    ax.text(femoral_center[0] + joint_line_len/2 + 0.1, femoral_center[1], "TMA", color='red', fontsize=10, va='center')
+    # Tibial joint line (below knee): FMA, 0° = horizontal, positive = CCW
     tibial_center = (knee[0], knee[1] + 0.2)
-    draw_rotated_line(ax, tibial_center, tma - 90, joint_line_len, color='red', lw=3)
+    draw_rotated_line(ax, tibial_center, fma - 90, joint_line_len, color='red', lw=1.5)
+    ax.text(tibial_center[0] + joint_line_len/2 + 0.1, tibial_center[1], "FMA", color='red', fontsize=10, va='center')
 
     # Labels
     ax.text(*ankle, "Ankle", ha='center', va='bottom', fontsize=10)
