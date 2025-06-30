@@ -100,11 +100,11 @@ def anatomy_diagram(ax, ahka, fma, tma):
 def cpak_graph(ax, ahka, jlo, color, label):
     # Set up the graph with 1.0 increments
     ax.set_xlim(-8, 8)
-    ax.set_ylim(170, 190)  # Reverse y-axis to match PyQt5
+    ax.set_ylim(170, 190)  # Keep normal y-axis order for proper reversal
     
-    # Set major ticks to 1.0 increments
-    ax.set_xticks(np.arange(-8, 9, 1))
-    ax.set_yticks(np.arange(170, 191, 1))
+    # Set major ticks: 2 increments for aHKA, specific increments for JLO
+    ax.set_xticks(np.arange(-8, 9, 2))
+    ax.set_yticks([171, 174, 177, 180, 183, 186, 189])
     
     # Draw grid lines
     ax.grid(True, alpha=0.3)
@@ -128,6 +128,9 @@ def cpak_graph(ax, ahka, jlo, color, label):
     ax.set_ylabel("JLO")
     ax.set_title("CPAK Plot")
     ax.legend()
+    
+    # Reverse the y-axis so lower values appear at the top
+    ax.invert_yaxis()
 
 # --- Streamlit UI ---
 
