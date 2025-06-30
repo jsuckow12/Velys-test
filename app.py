@@ -55,7 +55,7 @@ def draw_rotated_line(ax, center, angle_deg, length, color='red', lw=1.5):
     y1 = center[1] + (length/2) * np.sin(angle_rad)
     ax.plot([x0, x1], [y0, y1], color=color, lw=lw)
 
-def anatomy_diagram(ax, ahka, fma, tma):
+def anatomy_diagram(ax, ahka, fma, tma, show_jlca=None):
     # Set up points: ankle (top), knee (middle), hip (bottom)
     center_x = 0
     ankle_y = 0
@@ -83,16 +83,21 @@ def anatomy_diagram(ax, ahka, fma, tma):
     # Femoral joint line (above knee): TMA, 0° = horizontal, positive = CCW
     femoral_center = (knee[0], knee[1])
     draw_rotated_line(ax, femoral_center, tma - 90, joint_line_len, color='red', lw=1.5)
-    ax.text(femoral_center[0] + joint_line_len/2 + 0.1, femoral_center[1], "TMA", color='red', fontsize=10, va='center')
-    # Tibial joint line (below knee): FMA, 0° = horizontal, positive = CCW
+    # Tibial joint line (below knee): FMA, 0° = horizontal, positive = CCW (REVERSED)
     tibial_center = (knee[0], knee[1] + 0.2)
-    draw_rotated_line(ax, tibial_center, fma - 90, joint_line_len, color='red', lw=1.5)
-    ax.text(tibial_center[0] + joint_line_len/2 + 0.1, tibial_center[1], "FMA", color='red', fontsize=10, va='center')
+    draw_rotated_line(ax, tibial_center, 90 - fma, joint_line_len, color='red', lw=1.5)
 
     # Labels
     ax.text(*ankle, "Ankle", ha='center', va='bottom', fontsize=10)
     ax.text(*knee, "Knee", ha='center', va='bottom', fontsize=10)
     ax.text(*hip, "Hip", ha='center', va='top', fontsize=10)
+
+    # Show JLCA if provided
+    if show_jlca is not None:
+        # Place halfway between left edge and knee
+        x_jlca = -2 + (knee[0] + 2) / 2
+        y_jlca = knee[1]
+        ax.text(x_jlca, y_jlca, f"JLCA: {show_jlca:.2f}", color='blue', fontsize=12, va='center', ha='left', bbox=dict(facecolor='white', edgecolor='none', alpha=0.7))
 
     ax.set_xlim(-2, 2)
     ax.set_ylim(-0.5, 4.5)
@@ -133,6 +138,9 @@ ldfa_pre, mpta_pre, jlo_pre, ahka_pre = calculate_cpak(FMA, TMA)
 post_op_vals = calculate_post_op(pre_op, technique)
 ldfa_post, mpta_post, jlo_post, ahka_post = calculate_cpak(post_op_vals["fma"], post_op_vals["tma"])
 
+# JLCA for pre-op
+jlca_pre = rHKA - sHKA
+
 # --- Display Anatomy Diagrams ---
 
 st.subheader("Anatomy Diagrams")
@@ -140,7 +148,7 @@ ad_col1, ad_col2 = st.columns(2)
 with ad_col1:
     st.markdown("**Pre-op Anatomy**")
     fig1, ax1 = plt.subplots(figsize=(3, 4))
-    anatomy_diagram(ax1, rHKA, FMA, TMA)
+    anatomy_diagram(ax1, rHKA, FMA, TMA, show_jlca=jlca_pre)
     st.pyplot(fig1)
 with ad_col2:
     st.markdown("**Post-op Anatomy**")
