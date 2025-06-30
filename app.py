@@ -11,8 +11,8 @@ def calculate_cpak(fma, tma):
     ldfa = 180 - fma
     mpta = tma
     jlo = mpta + ldfa
-    ahka = mpta - ldfa
-    return ldfa, mpta, jlo, ahka
+    aHKA = mpta - ldfa
+    return ldfa, mpta, jlo, aHKA
 
 def calculate_post_op(pre_op, technique):
     if technique == "Mechanical Alignment (MA)":
