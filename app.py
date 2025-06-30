@@ -47,42 +47,51 @@ def calculate_post_op(pre_op, technique):
             "shka": 180
         }
 
-def anatomy_diagram(ax, ahka):
-    # Set up points: hip (top), knee (middle), ankle (bottom)
+def draw_rotated_line(ax, center, angle_deg, length, color='red', lw=3):
+    # angle_deg: 0 = horizontal, positive = counterclockwise
+    angle_rad = np.radians(angle_deg)
+    x0 = center[0] - (length/2) * np.cos(angle_rad)
+    y0 = center[1] - (length/2) * np.sin(angle_rad)
+    x1 = center[0] + (length/2) * np.cos(angle_rad)
+    y1 = center[1] + (length/2) * np.sin(angle_rad)
+    ax.plot([x0, x1], [y0, y1], color=color, lw=lw)
+
+def anatomy_diagram(ax, ahka, fma, tma):
+    # Set up points: ankle (top), knee (middle), hip (bottom)
     center_x = 0
-    hip_y = 0
+    ankle_y = 0
     knee_y = 2
-    ankle_y = 4
+    hip_y = 4
 
     # Calculate offset for aHKA (in degrees)
     angle_rad = np.radians(180 - ahka)
     offset = 1.0 * np.sin(angle_rad)  # horizontal offset for mechanical axis
 
     # Points
-    hip = (center_x + offset, hip_y)
-    knee = (center_x, knee_y)
     ankle = (center_x + offset, ankle_y)
+    knee = (center_x, knee_y)
+    hip = (center_x + offset, hip_y)
 
-    # Draw mechanical axis (hip to knee to ankle)
-    ax.plot([hip[0], knee[0], ankle[0]], [hip[1], knee[1], ankle[1]], 'k-', lw=2)
+    # Draw mechanical axis (ankle to knee to hip)
+    ax.plot([ankle[0], knee[0], hip[0]], [ankle[1], knee[1], hip[1]], 'k-', lw=2)
     # Draw points
-    ax.plot(*hip, 'ro', ms=8)
-    ax.plot(*knee, 'ro', ms=8)
     ax.plot(*ankle, 'ro', ms=8)
+    ax.plot(*knee, 'ro', ms=8)
+    ax.plot(*hip, 'ro', ms=8)
 
-    # Draw femoral and tibial joint lines at the knee (same length, red)
+    # Draw femoral and tibial joint lines at the knee (same length, red, rotated)
     joint_line_len = 1.2
-    # Femoral joint line (above knee)
-    ax.plot([knee[0] - joint_line_len/2, knee[0] + joint_line_len/2],
-            [knee[1], knee[1]], color='red', lw=3)
-    # Tibial joint line (below knee)
-    ax.plot([knee[0] - joint_line_len/2, knee[0] + joint_line_len/2],
-            [knee[1]+0.2, knee[1]+0.2], color='red', lw=3)
+    # Femoral joint line (above knee): FMA, 0° = horizontal, positive = CCW
+    femoral_center = (knee[0], knee[1])
+    draw_rotated_line(ax, femoral_center, fma - 90, joint_line_len, color='red', lw=3)
+    # Tibial joint line (below knee): TMA, 0° = horizontal, positive = CCW
+    tibial_center = (knee[0], knee[1] + 0.2)
+    draw_rotated_line(ax, tibial_center, tma - 90, joint_line_len, color='red', lw=3)
 
     # Labels
-    ax.text(*hip, "Hip", ha='center', va='bottom', fontsize=10)
+    ax.text(*ankle, "Ankle", ha='center', va='bottom', fontsize=10)
     ax.text(*knee, "Knee", ha='center', va='bottom', fontsize=10)
-    ax.text(*ankle, "Ankle", ha='center', va='top', fontsize=10)
+    ax.text(*hip, "Hip", ha='center', va='top', fontsize=10)
 
     ax.set_xlim(-2, 2)
     ax.set_ylim(-0.5, 4.5)
@@ -107,10 +116,10 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.header("Pre-op Input")
-    rHKA = st.number_input("rHKA", value=173.0)
-    FMA = st.number_input("FMA", value=92.0)
-    TMA = st.number_input("TMA", value=84.0)
-    sHKA = st.number_input("sHKA", value=176.0)
+    rHKA = st.number_input("rHKA", value=173, step=1, format="%d")
+    FMA = st.number_input("FMA", value=92, step=1, format="%d")
+    TMA = st.number_input("TMA", value=84, step=1, format="%d")
+    sHKA = st.number_input("sHKA", value=176, step=1, format="%d")
 
 with col2:
     st.header("Post-op Input")
@@ -130,12 +139,12 @@ ad_col1, ad_col2 = st.columns(2)
 with ad_col1:
     st.markdown("**Pre-op Anatomy**")
     fig1, ax1 = plt.subplots(figsize=(3, 4))
-    anatomy_diagram(ax1, rHKA)
+    anatomy_diagram(ax1, rHKA, FMA, TMA)
     st.pyplot(fig1)
 with ad_col2:
     st.markdown("**Post-op Anatomy**")
     fig2, ax2 = plt.subplots(figsize=(3, 4))
-    anatomy_diagram(ax2, post_op_vals["ahka"])
+    anatomy_diagram(ax2, post_op_vals["ahka"], post_op_vals["fma"], post_op_vals["tma"])
     st.pyplot(fig2)
 
 # --- Display CPAK Graphs and Tables ---
