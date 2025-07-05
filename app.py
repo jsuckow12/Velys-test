@@ -122,12 +122,11 @@ def cpak_graph(ax, ahka, jlo, color, label):
     ax.axvline(2, color='black', linewidth=2)
     
     # Plot the point
-    ax.scatter([ahka], [jlo], color=color, s=100, label=label)
+    ax.scatter([ahka], [jlo], color=color, s=100)
     
     ax.set_xlabel("aHKA")
     ax.set_ylabel("JLO")
     ax.set_title("CPAK Plot")
-    ax.legend()
     
     # Reverse the y-axis so lower values appear at the top
     ax.invert_yaxis()
